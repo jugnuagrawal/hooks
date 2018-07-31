@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const log4js = require('log4js');
 const vm = require('vm');
+const path = require('path');
+const fs = require('fs');
 const logger = log4js.getLogger('server');
 const app = express();
 
@@ -24,7 +26,9 @@ app.use((req, res, next) => {
 });
 
 global.app = app;
-global.require = require;
+global.log4js = log4js;
+global.path = path;
+global.fs = fs;
 global.__dirname = __dirname;
 
 app.get('/routes', (req, res) => {
@@ -42,9 +46,6 @@ app.post('/deploy', (req, res) => {
         app._router.stack.splice(findIndex, 1);
     }
     const script = new vm.Script(`
-    const log4js = require('log4js');
-    const path = require('path');
-    const fs = require('fs');
     app.get('/${req.body.path}/console',(req,res)=>{
         const file = path.join(__dirname,'logs/${req.body.path}.log');
         try{

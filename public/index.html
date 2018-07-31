@@ -29,7 +29,7 @@
             <div class="bg-dark px-3 pt-3">
                 <pre class="text-white">app.post('/<span id="ctrlPath"></span>',function(req,res){</pre>
             </div>
-            <pre id="code" class="w-100 h-100 border-0 pl-5 bg-dark text-white m-0" contenteditable="true"></pre>
+            <pre id="code" class="w-100 h-100 border-0 pl-5 bg-dark text-white m-0" contenteditable="true">res.end();</pre>
             <div class="bg-dark text-white px-3 pb-3">
                 <pre class="text-white">});</pre>
             </div>
@@ -39,8 +39,8 @@
                 <p class="p-3 m-0" id="message"></p>
             </div>
             <div class="d-flex bg-light border-top p-3">
-                <button type="button" class="btn btn-secondary w-100 mr-3" id="reset">Reset</button>
-                <button type="button" class="btn btn-success w-100" id="deploy">Deploy</button>
+                <a href="/" class="btn btn-secondary w-100 mr-3 d-none" id="console">Console</a>
+                <button type="button" class="btn btn-success w-100" id="deploy" disabled>Deploy</button>
             </div>
         </div>
     </div>
