@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Hooks</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/fontawesome-all.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -62,13 +63,13 @@
             <div class="w-100 h-100 d-flex flex-column" id="richEditor" ng-if="vm.selectedTab == 1">
 
             </div>
-            <small id="info" class="mini-footer w-100 p-2 bg-white d-flex text-muted justify-content-between">
+            <small id="info" class="mini-footer w-100 p-2 bg-white d-flex text-muted align-items-center">
                 <div class="d-flex w-100">
-                    <span style="width: 78px;">Hook URL&nbsp;:&nbsp;</span>
+                    <span style="min-width: 78px;">Hook URL&nbsp;:&nbsp;</span>
                     <input id="copyUrl" class="hover border-0 text-muted bg-white w-100" value="hooks.jugnuagrawal.in/{{vm.camelCase(vm.path)}}"
                         ng-click="vm.copyToClipboard()" readonly>
+                        <span id="copied" class="text-right">(Copy to clipboard)</span>
                 </div>
-                <span id="copied" class="text-right">(Copy to clipboard)</span>
             </small>
         </div>
         <div class="w-50 d-flex flex-column border-right position-relative" id="console">
@@ -89,7 +90,11 @@
                 </div>
             </div>
             <pre class="w-100 h-100 d-flex flex-column text-white p-3 m-0" id="logs">{{vm.logs}}</pre>
-            <small id="otherInfo" class="mini-footer w-100 p-2 bg-white d-flex text-muted justify-content-end">
+            <small id="otherInfo" class="mini-footer w-100 p-2 bg-white d-flex text-muted justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <span class="text-muted mr-2">With <span class="text-danger fa-lg">&hearts;</span> by</span>
+                    <img src="favicon.ico" alt="Jugnu Agrawal" width="24px" data-toggle="tooltip" title="Jugnu Agrawal">
+                </div>
                 <div class="d-flex align-items-center">
                     <span class="text-muted mr-2">Powered by</span>
                     <span class="fab fa-html5 mr-2 text-warning" data-toggle="tooltip" title="HTML5"></span>

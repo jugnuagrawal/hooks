@@ -36,7 +36,8 @@
   visibility: visible;
 }
 #copied{
-  width: 124px;
+  min-width: 124px;
+  max-width: 124px;
 }
 .header{
     min-height: 50px;
