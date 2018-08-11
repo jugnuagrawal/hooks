@@ -160,9 +160,25 @@ function createHook(data) {
                 const file = path.join(__dirname,'logs/${data.path}.log');
                 try{
                     fs.statSync(file);
-                    res.sendFile(file);
+                    if(req.headers['content-type'] === 'application/json'){
+                        fs.readFile(file,'utf8',(err,data)=>{
+                            if(data){
+                                var arr = data.split('\\n');
+                                arr.splice(0,arr.length-1000);
+                                res.json({logs:arr});
+                            }else{
+                                res.json({message:'No logs!'});    
+                            }
+                        });
+                    }else{
+                        res.sendFile(file);
+                    }
                 }catch(e){
-                    res.end('No logs!');
+                    if(req.headers['content-type'] === 'application/json'){
+                        res.json({message:'No logs!'});
+                    }else{
+                        res.end('No logs!');
+                    }
                 }
             });
             app.post('/${data.path}',(req,res)=>{

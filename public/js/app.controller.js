@@ -23,7 +23,7 @@
             vm.loadedPath = null;
             vm.code = 'res.end()';
             vm.message = null;
-            vm.logs = null;
+            vm.logs = [];
             vm.runTime = null;
             vm.error = false;
             vm.disableStop = true;
@@ -154,10 +154,18 @@
             var path = vm.camelCase(vm.path);
             $http({
                 method: 'GET',
-                url: `/${path}/console`
+                url: `/${path}/console`,
+                headers: {
+                    'content-type': 'application/json'
+                },
+                data:''
             }).then(res => {
                 if (res.data) {
-                    vm.logs = res.data.split('\n').reverse().join('\n');
+                    if (res.data.logs) {
+                        vm.logs = res.data.logs;
+                    } else {
+                        vm.logs = [];
+                    }
                 }
             }).catch(err => {
                 console.log('ERROR:', err);
