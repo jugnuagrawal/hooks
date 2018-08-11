@@ -35,6 +35,9 @@
 #copyUrl:hover ~ #copied{
   visibility: visible;
 }
+#copied{
+  width: 124px;
+}
 .header{
     min-height: 50px;
     max-height: 50px;

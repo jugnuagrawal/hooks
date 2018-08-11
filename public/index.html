@@ -63,12 +63,12 @@
 
             </div>
             <small id="info" class="mini-footer w-100 p-2 bg-white d-flex text-muted justify-content-between">
-                <div class="d-flex">
-                    <span>Hook URL&nbsp;:&nbsp;</span>
-                    <input id="copyUrl" class="hover border-0 text-muted bg-white" value="hooks.jugnuagrawal.in/{{vm.camelCase(vm.path)}}" ng-click="vm.copyToClipboard()"
-                        readonly>
-                    <span id="copied">(Copy to clipboard)</span>
+                <div class="d-flex w-100">
+                    <span style="width: 78px;">Hook URL&nbsp;:&nbsp;</span>
+                    <input id="copyUrl" class="hover border-0 text-muted bg-white w-100" value="hooks.jugnuagrawal.in/{{vm.camelCase(vm.path)}}"
+                        ng-click="vm.copyToClipboard()" readonly>
                 </div>
+                <span id="copied" class="text-right">(Copy to clipboard)</span>
             </small>
         </div>
         <div class="w-50 d-flex flex-column border-right position-relative" id="console">
