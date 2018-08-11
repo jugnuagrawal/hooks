@@ -65,7 +65,7 @@
             <small id="info" class="mini-footer w-100 p-2 bg-white d-flex text-muted justify-content-between">
                 <div class="d-flex">
                     <span>Hook URL&nbsp;:&nbsp;</span>
-                    <input id="copyUrl" class="hover border-0 text-muted bg-white" value="hooks.jugnuagrawal.in/{{vm.path}}" ng-click="vm.copyToClipboard()"
+                    <input id="copyUrl" class="hover border-0 text-muted bg-white" value="hooks.jugnuagrawal.in/{{vm.camelCase(vm.path)}}" ng-click="vm.copyToClipboard()"
                         readonly>
                     <span id="copied">(Copy to clipboard)</span>
                 </div>
@@ -92,16 +92,12 @@
             <small id="otherInfo" class="mini-footer w-100 p-2 bg-white d-flex text-muted justify-content-end">
                 <div class="d-flex align-items-center">
                     <span class="text-muted mr-2">Powered by</span>
-                    <span class="fab fa-html5 mr-2 text-warning" data-toggle="tooltip"
-                    title="HTML5"></span>
-                    <span class="fab fa-css3-alt mr-2 text-primary" data-toggle="tooltip"
-                    title="CSS3"></span>
-                    <span class="fab fa-angular mr-2 text-danger" data-toggle="tooltip"
-                    title="Angular JS"></span>
-                    <span class="fab fa-node-js mr-2 text-success" data-toggle="tooltip"
-                    title="Node JS"></span>
-                    <span class="fab fa-digital-ocean mr-2 text-info" data-toggle="tooltip"
-                    title="Digital Ocean"></span>
+                    <span class="fab fa-html5 mr-2 text-warning" data-toggle="tooltip" title="HTML5"></span>
+                    <span class="fab fa-css3-alt mr-2 text-primary" data-toggle="tooltip" title="CSS3"></span>
+                    <span class="fab fa-font-awesome mr-2 text-info" data-toggle="tooltip" title="Font Awesome"></span>
+                    <span class="fab fa-angular mr-2 text-danger" data-toggle="tooltip" title="Angular JS"></span>
+                    <span class="fab fa-node-js mr-2 text-success" data-toggle="tooltip" title="Node JS"></span>
+                    <span class="fab fa-digital-ocean mr-2 text-info" data-toggle="tooltip" title="Digital Ocean"></span>
                 </div>
             </small>
         </div>
