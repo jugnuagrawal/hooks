@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="hooks">
 
 <head>
     <meta charset="UTF-8">
@@ -7,13 +7,16 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Hooks</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/fontawesome-all.min.css">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
 </head>
 
-<body style="height: 100vh;" class="w-100 d-flex flex-column">
-    <div class="d-flex p-3 bg-primary align-items-center">
+<body style="height: 100vh;" class="w-100 d-flex flex-column" ng-controller="editorController as vm">
+    <div class="d-flex py-3 pl-3 bg-primary align-items-center">
+        <span class="fa fa-exchange-alt fa-lg text-white font-weight-bold mr-2"></span>
         <h3 class="m-0 text-white mr-3">Hooks</h3>
         <div class="input-group">
             <span class="input-group-prepend">
@@ -21,30 +24,112 @@
                     Name
                 </span>
             </span>
-            <input type="text" class="form-control" name="path" id="path">
+            <input type="text" class="form-control" name="path" id="path" ng-model="vm.path" ng-blur="vm.onBlur($event)">
         </div>
+        <button class="btn btn-primary fa fa-cog fa-lg py-2" ng-click="vm.toggleSidenav=!vm.toggleSidenav;vm.loadAllHooks()"></button>
     </div>
     <div class="h-100 d-flex">
-        <div class="w-75 d-flex flex-column border-right">
-            <div class="bg-dark px-3 pt-3">
-                <pre class="text-white">app.post('/<span id="ctrlPath"></span>',function(req,res){</pre>
+        <div class="w-50 d-flex flex-column border-right position-relative">
+            <div class="d-flex justify-content-between align-items-center p-2 bg-white header">
+                <span class="font-weight-bold d-flex align-items-center">
+                    <span class="fa fa-code text-muted mr-2"></span>
+                    <span>Editor</span>
+                    <!-- <nav class="nav nav-tabs flex-column flex-sm-row">
+                        <a class="flex-sm-fill text-sm-center nav-link" href="#" ng-class="{'active':vm.selectedTab == 0}" ng-click="vm.selectedTab=0">Code Editor</a>
+                        <a class="flex-sm-fill text-sm-center nav-link" href="#" ng-class="{'active':vm.selectedTab == 1}" ng-click="vm.selectedTab=1">Rich Editor</a>
+                    </nav> -->
+                </span>
+                <p class="p-3 m-0 font-weight-bold" id="message" ng-class="{'text-danger':vm.error,'text-success':!vm.error}">{{vm.message}}</p>
+                <div class="d-flex">
+                    <button type="button" class="btn btn-light mr-3 fa fa-undo-alt text-warning" id="resetBtn" data-toggle="tooltip" title="Reset"
+                        ng-click="vm.init()"></button>
+                    <button type="button" class="btn btn-light mr-3 fa fa-stop text-danger" id="unDeployBtn" ng-disabled="vm.disableStop" data-toggle="tooltip"
+                        title="Undeploy" ng-click="vm.deleteHook()"></button>
+                    <button type="button" class="btn btn-light fa fa-play text-success" id="deployBtn" ng-disabled="!vm.path || !vm.code" data-toggle="tooltip"
+                        title="Deploy" ng-click="vm.createHook()"></button>
+                </div>
             </div>
-            <pre id="code" class="w-100 h-100 border-0 pl-5 bg-dark text-white m-0" contenteditable="true">res.end();</pre>
-            <div class="bg-dark text-white px-3 pb-3">
-                <pre class="text-white">});</pre>
+            <div class="w-100 h-100 d-flex flex-column" id="codeEditor" ng-if="vm.selectedTab == 0">
+                <div class="px-3 pt-3">
+                    <pre class="text-white">app.post('/<span id="ctrlPath">{{vm.camelCase(vm.path)}}</span>',function(req,res){</pre>
+                </div>
+                <textarea name="code" id="code" class="w-100 h-100 border-0 pl-5 text-white m-0" ng-model="vm.code" ng-keyup="vm.onKeyUp($event)"
+                    ng-keypress="vm.keypress($event)"></textarea>
+                <div class="text-white px-3 pb-3">
+                    <pre class="text-white">});</pre>
+                </div>
             </div>
+            <div class="w-100 h-100 d-flex flex-column" id="richEditor" ng-if="vm.selectedTab == 1">
+
+            </div>
+            <small id="info" class="mini-footer w-100 p-2 bg-white d-flex text-muted justify-content-between">
+                <div class="d-flex">
+                    <span>Hook URL&nbsp;:&nbsp;</span>
+                    <input id="copyUrl" class="hover border-0 text-muted bg-white" value="hooks.jugnuagrawal.in/{{vm.path}}" ng-click="vm.copyToClipboard()"
+                        readonly>
+                    <span id="copied">(Copy to clipboard)</span>
+                </div>
+            </small>
         </div>
-        <div class="w-25 d-flex flex-column">
-            <div class="h-100">
-                <p class="p-3 m-0" id="message"></p>
+        <div class="w-50 d-flex flex-column border-right position-relative" id="console">
+            <div class="d-flex justify-content-between align-items-center p-2 bg-white header">
+                <span class="font-weight-bold">
+                    <span class="fa fa-terminal text-muted mr-2"></span>
+                    <span>Console</span>
+                </span>
+                <small id="runTime" class="text-muted">{{vm.runTime}}</small>
+                <div class="d-flex align-items-center">
+                    <small class="text-muted mr-2">Auto refresh</small>
+                    <label class="switch mb-0 mr-3" for="autoRefresh">
+                        <input id="autoRefresh" type="checkbox" ng-model="vm.autoRefresh" ng-click="vm.toggleAutoRefresh(!vm.autoRefresh)">
+                        <span class="slider round"></span>
+                    </label>
+                    <button class="btn btn-light fa fa-sync-alt text-dark" id="refreshConsoleBtn" data-toggle="tooltip" title="Refresh" ng-click="vm.loadLogs()"
+                        ng-disabled="vm.autoRefresh"></button>
+                </div>
             </div>
-            <div class="d-flex bg-light border-top p-3">
-                <a href="/" class="btn btn-secondary w-100 mr-3 d-none" id="console" target="_blank">Console</a>
-                <button type="button" class="btn btn-success w-100" id="deploy" disabled>Deploy</button>
+            <pre class="w-100 h-100 d-flex flex-column text-white p-3 m-0" id="logs">{{vm.logs}}</pre>
+            <small id="otherInfo" class="mini-footer w-100 p-2 bg-white d-flex text-muted justify-content-end">
+                <div class="d-flex align-items-center">
+                    <span class="text-muted mr-2">Powered by</span>
+                    <span class="fab fa-html5 mr-2 text-warning" data-toggle="tooltip"
+                    title="HTML5"></span>
+                    <span class="fab fa-css3-alt mr-2 text-primary" data-toggle="tooltip"
+                    title="CSS3"></span>
+                    <span class="fab fa-angular mr-2 text-danger" data-toggle="tooltip"
+                    title="Angular JS"></span>
+                    <span class="fab fa-node-js mr-2 text-success" data-toggle="tooltip"
+                    title="Node JS"></span>
+                    <span class="fab fa-digital-ocean mr-2 text-info" data-toggle="tooltip"
+                    title="Digital Ocean"></span>
+                </div>
+            </small>
+        </div>
+    </div>
+    <div id="sidenav" class="sidenav d-flex flex-column border-left position-fixed h-100 bg-white rounded-left" ng-class="{'show':vm.toggleSidenav}">
+        <div class="p-3 bg-primary text-white d-flex align-items-center justify-content-between">
+            <h4 class="m-0">Available Hooks</h4>
+            <button class="btn btn-primary fa fa-times" ng-click="vm.toggleSidenav=false"></button>
+        </div>
+        <div class="p-3">
+            <div class="list-group">
+                <a class="list-group-item list-group-item-action" ng-repeat="hook in vm.hookList" href="#" ng-click="vm.path=hook._id;vm.loadHook();vm.toggleSidenav=false;">{{hook._id}}</a>
             </div>
         </div>
     </div>
-    <script src="js/script.js"></script>
+    <div id="overlay" class="w-100 h-100 d-none position-fixed" ng-class="{'d-flex':vm.toggleSidenav}" ng-click="vm.toggleSidenav=false"></div>
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular-sanitize.min.js"></script>
+    <script src="js/angular-aria.min.js"></script>
+    <script src="js/angular-animate.min.js"></script>
+    <script src="js/app.module.js"></script>
+    <script src="js/app.controller.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    <!-- <script src="js/script.js"></script> -->
 </body>
 
 </html>
