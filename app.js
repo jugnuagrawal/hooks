@@ -35,9 +35,9 @@ app.use(bodyParser.urlencoded());
 app.use(express.static('public'))
 app.use((req, res, next) => {
     logger.info(req.method, req.path, req.params, req.body)
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Method', '*');
-    res.setHeader('Access-Control-Allow-Headers', '*');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Method', '*');
+    // res.setHeader('Access-Control-Allow-Headers', '*');
     next();
 });
 
@@ -134,6 +134,17 @@ app.delete('/deploy/:path', (req, res) => {
         }
         res.status(200).json({ message: 'Hook deleted' });
     });
+});
+
+
+app.delete('/logs/:path', (req, res) => {
+    if (usedPaths.indexOf(req.params.path) > -1) {
+        res.status(400).json({ message: 'Cannot clear logs' });
+        return;
+    }
+    const logPath = `./logs/${req.params.path}.log`;
+    fs.writeFileSync(path.join(__dirname, logPath), '', 'utf-8');
+    res.status(200).json({ message: 'Logs cleared' });
 });
 
 app.get('/', (req, res) => {

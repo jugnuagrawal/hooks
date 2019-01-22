@@ -158,7 +158,7 @@
                 headers: {
                     'content-type': 'application/json'
                 },
-                data:''
+                data: ''
             }).then(res => {
                 if (res.data) {
                     if (res.data.logs) {
@@ -167,6 +167,20 @@
                         vm.logs = [];
                     }
                 }
+            }).catch(err => {
+                console.log('ERROR:', err);
+            });
+        };
+        vm.clearLogs = () => {
+            var path = vm.camelCase(vm.path);
+            $http({
+                method: 'DELETE',
+                url: `/logs/${path}`,
+                headers: {
+                    'content-type': 'application/json'
+                }
+            }).then(res => {
+                vm.logs = [];
             }).catch(err => {
                 console.log('ERROR:', err);
             });

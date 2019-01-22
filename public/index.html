@@ -42,20 +42,20 @@
                 </span>
                 <p class="p-3 m-0 font-weight-bold" id="message" ng-class="{'text-danger':vm.error,'text-success':!vm.error}">{{vm.message}}</p>
                 <div class="d-flex">
-                    <button type="button" class="btn btn-light mr-3 fa fa-undo-alt text-warning" id="resetBtn" data-toggle="tooltip" title="Reset"
-                        ng-click="vm.init()"></button>
-                    <button type="button" class="btn btn-light mr-3 fa fa-stop text-danger" id="unDeployBtn" ng-disabled="vm.disableStop" data-toggle="tooltip"
-                        title="Undeploy" ng-click="vm.deleteHook()"></button>
-                    <button type="button" class="btn btn-light fa fa-play text-success" id="deployBtn" ng-disabled="!vm.path || !vm.code" data-toggle="tooltip"
-                        title="Deploy" ng-click="vm.createHook()"></button>
+                    <button type="button" class="btn btn-light mr-3 fa fa-undo-alt text-warning" id="resetBtn"
+                        data-toggle="tooltip" title="Reset" ng-click="vm.init()"></button>
+                    <button type="button" class="btn btn-light mr-3 fa fa-stop text-danger" id="unDeployBtn"
+                        ng-disabled="vm.disableStop" data-toggle="tooltip" title="Undeploy" ng-click="vm.deleteHook()"></button>
+                    <button type="button" class="btn btn-light fa fa-play text-success" id="deployBtn" ng-disabled="!vm.path || !vm.code"
+                        data-toggle="tooltip" title="Deploy" ng-click="vm.createHook()"></button>
                 </div>
             </div>
             <div class="w-100 h-100 d-flex flex-column" id="codeEditor" ng-if="vm.selectedTab == 0">
                 <div class="px-3 pt-3">
                     <pre class="text-white">app.post('/<span id="ctrlPath">{{vm.camelCase(vm.path)}}</span>',function(req,res){</pre>
                 </div>
-                <textarea name="code" id="code" class="w-100 h-100 border-0 pl-5 text-white m-0" ng-model="vm.code" ng-keyup="vm.onKeyUp($event)"
-                    ng-keypress="vm.keypress($event)"></textarea>
+                <textarea name="code" id="code" class="w-100 h-100 border-0 pl-5 text-white m-0" ng-model="vm.code"
+                    ng-keyup="vm.onKeyUp($event)" ng-keypress="vm.keypress($event)"></textarea>
                 <div class="text-white px-3 pb-3">
                     <pre class="text-white">});</pre>
                 </div>
@@ -66,9 +66,9 @@
             <small id="info" class="mini-footer w-100 p-2 bg-white d-flex text-muted align-items-center">
                 <div class="d-flex w-100">
                     <span style="min-width: 78px;">Hook URL&nbsp;:&nbsp;</span>
-                    <input id="copyUrl" class="hover border-0 text-muted bg-white w-100" value="hooks.jugnuagrawal.in/{{vm.camelCase(vm.path)}}"
+                    <input id="copyUrl" class="hover border-0 text-muted bg-white w-100" value="http://hooks.jugnuagrawal.in/{{vm.camelCase(vm.path)}}"
                         ng-click="vm.copyToClipboard()" readonly>
-                        <span id="copied" class="text-right">(Copy to clipboard)</span>
+                    <span id="copied" class="text-right">(Copy to clipboard)</span>
                 </div>
             </small>
         </div>
@@ -85,8 +85,10 @@
                         <input id="autoRefresh" type="checkbox" ng-model="vm.autoRefresh" ng-click="vm.toggleAutoRefresh(!vm.autoRefresh)">
                         <span class="slider round"></span>
                     </label>
-                    <button class="btn btn-light fa fa-sync-alt text-dark" id="refreshConsoleBtn" data-toggle="tooltip" title="Refresh" ng-click="vm.loadLogs()"
-                        ng-disabled="vm.autoRefresh"></button>
+                    <button class="btn btn-light fa fa-sync-alt text-dark mr-3" id="refreshConsoleBtn" data-toggle="tooltip"
+                        title="Refresh" ng-click="vm.loadLogs()" ng-disabled="vm.autoRefresh"></button>
+                    <button class="btn btn-light fa fa-trash text-danger" id="clearLogsBtn" data-toggle="tooltip" title="Clear Logs"
+                        ng-click="vm.clearLogs()"></button>
                 </div>
             </div>
             <pre class="w-100 h-100 d-flex flex-column text-white p-3 m-0" id="logs">
@@ -109,7 +111,8 @@
             </small>
         </div>
     </div>
-    <div id="sidenav" class="sidenav d-flex flex-column border-left position-fixed h-100 bg-white rounded-left" ng-class="{'show':vm.toggleSidenav}">
+    <div id="sidenav" class="sidenav d-flex flex-column border-left position-fixed h-100 bg-white rounded-left"
+        ng-class="{'show':vm.toggleSidenav}">
         <div class="p-3 bg-primary text-white d-flex align-items-center justify-content-between">
             <h4 class="m-0">Available Hooks</h4>
             <button class="btn btn-primary fa fa-times" ng-click="vm.toggleSidenav=false"></button>
