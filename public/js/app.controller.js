@@ -3,10 +3,10 @@
 
     angular
         .module('hooks')
-        .controller('editorController', editorController);
+        .controller('hookController', hookController);
 
-    editorController.$inject = ['$http'];
-    function editorController($http) {
+    hookController.$inject = ['$http'];
+    function hookController($http) {
         var vm = this;
         var stack = [];
         vm.activate = () => {
@@ -21,7 +21,7 @@
             vm.selectedTab = 0;
             vm.path = null;
             vm.loadedPath = null;
-            vm.code = 'res.end()';
+            vm.code = 'res.json(req.body)';
             vm.message = null;
             vm.logs = [];
             vm.runTime = null;

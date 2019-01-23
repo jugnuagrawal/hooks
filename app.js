@@ -32,7 +32,8 @@ const usedPaths = ['deploy', ''];
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
-app.use(express.static('public'))
+app.use(express.static('public'));
+app.use(express.static('node_modules'));
 app.use((req, res, next) => {
     logger.info(req.method, req.path, req.params, req.body)
     // res.setHeader('Access-Control-Allow-Origin', '*');
@@ -145,6 +146,10 @@ app.delete('/logs/:path', (req, res) => {
     const logPath = `./logs/${req.params.path}.log`;
     fs.writeFileSync(path.join(__dirname, logPath), '', 'utf-8');
     res.status(200).json({ message: 'Logs cleared' });
+});
+
+app.get('/editor', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'editor.html'));
 });
 
 app.get('/', (req, res) => {
