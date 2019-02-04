@@ -6,6 +6,7 @@
     box-shadow: none;
     font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
     background: #111;
+    max-height: calc(100vh - 260px);
 }
 #console{
     background: #000;
