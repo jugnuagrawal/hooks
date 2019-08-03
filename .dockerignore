@@ -1,0 +1,10 @@
+node_modules
+logs
+apps
+server.log
+test.js
+Dockerfile
+.dockerignore
+.gitignore
+LICENSE
+README.md

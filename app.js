@@ -1,13 +1,21 @@
+const { spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const log4js = require('log4js');
-const vm = require('vm');
-const path = require('path');
-const fs = require('fs');
 const mongoose = require('mongoose');
-const logger = log4js.getLogger('server');
+const getPort = require('get-port');
+const killPort = require('kill-port');
+const makeDir = require('make-dir');
+const request = require('request');
+
 const template = require('./template');
+const PORT = process.env.PORT || 8000;
+
+const logger = log4js.getLogger('server');
 const app = express();
+const routeMap = {};
 
 const schema = new mongoose.Schema({
     _id: {
@@ -15,6 +23,9 @@ const schema = new mongoose.Schema({
     },
     code: {
         type: 'String'
+    },
+    port: {
+        type: 'Number'
     },
     timestamp: {
         type: 'Date'
@@ -25,64 +36,62 @@ const model = mongoose.model('controller', schema);
 const mongo_url = process.env.MONGO_URL || 'mongodb://localhost:27017/hooks';
 
 log4js.configure({
-    appenders: { server: { type: 'file', filename: 'server.log', maxLogSize: 5242880 } },
-    categories: { default: { appenders: ['server'], level: 'info' } }
+    appenders: {
+        out: { type: 'console' },
+        server: { type: 'file', filename: 'server.log', maxLogSize: 5242880 }
+    },
+    categories: { default: { appenders: ['out', 'server'], level: 'info' } }
 });
 
-const usedPaths = ['deploy', ''];
+const usedPaths = ['deploy', 'hook', ''];
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
-app.use(express.static('public'));
-app.use(express.static('node_modules'));
-app.use((req, res, next) => {
-    logger.info(req.method, req.path, req.params, req.body)
-    // res.setHeader('Access-Control-Allow-Origin', '*');
-    // res.setHeader('Access-Control-Allow-Method', '*');
-    // res.setHeader('Access-Control-Allow-Headers', '*');
-    next();
+mongoose.connect(mongo_url, (err) => {
+    if (err) {
+        logger.error(err);
+        process.exit(0);
+    } else {
+        logger.info('Database Connected');
+    }
 });
 
-
-//checking mongodb is available
 app.use((req, res, next) => {
-    if (mongoose.connections.length == 0 || mongoose.connections[0].readyState !== 1) {
-        mongoose.connect(mongo_url, (err) => {
-            if (err) {
-                logger.error(err);
-                res.status(500).json({ message: 'We are unable to process your request please try again later.' });
-            } else {
-                next();
-            }
-        });
+    const segments = req.path.split('/').filter(e => e);
+    const mappedPort = routeMap[segments[0]];
+    if (mappedPort) {
+        const proxyUrl = 'http://localhost:' + mappedPort + '/' + segments.join('/');
+        logger.info('Proxy Pass', proxyUrl);
+        req.pipe(request(proxyUrl)).pipe(res);
     } else {
         next();
     }
 });
 
-global.app = app;
-global.log4js = log4js;
-global.path = path;
-global.fs = fs;
-global.__dirname = __dirname;
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
+app.use(express.static('node_modules'));
+
+app.use((req, res, next) => {
+    const clientIP = req.headers['remote-addr'] || req.headers['x-forwaded-for'] || req.ip;
+    logger.info(req.method, clientIP, req.path);
+    next();
+});
 
 app.get('/hook', (req, res) => {
-    model.find({}, (err, data) => {
-        if (err) {
-            res.status(500).json({ message: 'Unable to fetch hooks' })
-        } else {
-            res.status(200).json({ hooks: data });
-        }
+    model.find({}).then(data => {
+        res.status(200).json({ hooks: data });
+    }).catch(err => {
+        logger.error(err);
+        res.status(500).json({ message: 'Unable to fetch hooks' });
     });
 });
 
-app.get('/hook/:path', (req, res) => {
-    model.findById(req.params.path, (err, data) => {
-        if (err) {
-            res.status(500).json({ message: 'Unable to fetch hook' })
-        } else {
-            res.status(200).json(data);
-        }
+app.get('/hook/:path(*)', (req, res) => {
+    model.findById(req.params.path).then(data => {
+        res.status(200).json(data);
+    }).catch(err => {
+        logger.error(err);
+        res.status(500).json({ message: 'Unable to fetch hook' });
     });
 });
 
@@ -91,32 +100,36 @@ app.post('/deploy', (req, res) => {
         res.status(400).json({ message: 'This path is reserved, please change your path' });
         return;
     }
-    model.findById(req.body.path, (err1, data1) => {
-        if (err1) {
-            res.status(500).message({ message: 'Unable to create hook' });
-            return;
-        }
-        let body = {
-            _id: req.body.path,
-            code: req.body.code,
-            timestamp: new Date()
-        };
-        let query;
-        if (data1) {
-            query = model.findByIdAndUpdate(req.body.path, body).exec();
-        } else {
-            query = model.create(body);
-        }
-        query.then(data2 => {
-            const findIndex = app._router.stack.findIndex(e => e.path === '/' + req.body.path);
-            if (findIndex > -1) {
-                app._router.stack.splice(findIndex, 1);
+    model.findById(req.body.path).then(data => {
+        configurePort(data).then(portData => {
+            let payload = {
+                _id: req.body.path,
+                code: req.body.code,
+                port: portData.port,
+                timestamp: new Date()
+            };
+            let query;
+            if (data) {
+                query = model.findOneAndUpdate({ _id: req.body.path }, payload).exec();
+            } else {
+                query = model.create(payload);
             }
-            createHook(req.body);
-            res.status(200).json({ message: 'Hook created' });
-        }).catch(err2 => {
-            res.status(500).message({ message: 'Unable to create hook' });
+            query.then(doc => {
+                payload.path = payload._id;
+                createHook(payload);
+                routeMap[payload.path] = payload.port;
+                res.status(200).json({ message: 'Hook created' });
+            }).catch(err => {
+                logger.error(err);
+                res.status(500).json({ message: 'Unable to save hook' });
+            });
+        }).catch(err => {
+            logger.error(err);
+            res.status(500).json({ message: 'Unable to find port' });
         });
+    }).catch(err => {
+        logger.error(err);
+        res.status(500).json({ message: 'Unable to create hook' });
     });
 });
 
@@ -125,16 +138,13 @@ app.delete('/deploy/:path', (req, res) => {
         res.status(400).json({ message: 'Cannot delete this hook' });
         return;
     }
-    model.findByIdAndRemove(req.params.path, (err, data) => {
-        if (err) {
-            res.status(500).message({ message: 'Unable to delete hook' });
-            return;
-        }
-        const findIndex = app._router.stack.findIndex(e => e.path === '/' + req.params.path);
-        if (findIndex > -1) {
-            app._router.stack.splice(findIndex, 1);
-        }
+    model.findByIdAndRemove(req.params.path).then(data => {
+        killPort(data.port, 'tcp').then(status => { }).catch(err => { });
+        delete routeMap[req.params.path];
         res.status(200).json({ message: 'Hook deleted' });
+    }).catch(err => {
+        logger.error(err);
+        res.status(500).json({ message: 'Unable to delete hook' });
     });
 });
 
@@ -149,29 +159,72 @@ app.delete('/logs/:path', (req, res) => {
     res.status(200).json({ message: 'Logs cleared' });
 });
 
-app.get('/editor', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'editor.html'));
-});
+// app.get('/editor', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public', 'editor.html'));
+// });
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const server = app.listen(8000, () => {
-    model.find({}, (err, data) => {
-        for (let i in data) {
-            const d = {
-                path: data[i]._id,
-                code: data[i].code
-            }
-            createHook(d);
-        }
+app.listen(PORT, () => {
+    model.find({}).then(data => {
+        data.forEach(doc => {
+            const temp = {
+                path: doc._id,
+                code: doc.code,
+                port: doc.port
+            };
+            killPort(temp.port, 'tcp').then(status => {
+                createHook(temp);
+                logger.info('Started Hook', temp.path, temp.port);
+                routeMap[temp.path] = temp.port;
+            }).catch(err => {
+                logger.error(err);
+            });
+        });
+    }).catch(err => {
+        logger.error(err);
     });
-    logger.info('App running on http://localhost:' + server.address().port);
+    logger.info('Server is listening on port', PORT);
 });
 
 
 function createHook(data) {
-    const script = new vm.Script(template.getContent(data));
-    script.runInThisContext();
+    const content = template.getContent(data);
+    const location = path.join(__dirname, 'apps', data.path);
+    makeDir.sync(location);
+    fs.writeFileSync(path.join(location, 'app.js'), content, 'utf8');
+    const nodeApp = spawn('node', [path.join(location, 'app.js')]);
+    // nodeApp.stdout.on('data', (data) => {
+    //     console.log(`stdout: ${data}`);
+    // });
+    // nodeApp.stderr.on('data', (data) => {
+    //     console.log(`stderr: ${data}`);
+    // });
+    // nodeApp.on('close', (code) => {
+    //     console.log(`child process exited with code ${code}`);
+    // });
+}
+
+function configurePort(data) {
+    return new Promise((resolve, reject) => {
+        if (data) {
+            killPort(data.port, 'tcp').then(res => {
+                resolve(data);
+            }).catch(err => {
+                reject(err);
+            });
+        } else {
+            getPort({
+                from: 20000
+            }).then(port => {
+                resolve({
+                    port: port
+                });
+            }).catch(err => {
+                reject(err);
+            });
+        }
+    });
 }
