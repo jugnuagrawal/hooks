@@ -8,3 +8,4 @@ Dockerfile
 .gitignore
 LICENSE
 README.md
+.DS_Store
