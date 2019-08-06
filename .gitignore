@@ -3,3 +3,4 @@ logs
 server.log
 test.js
 apps
+.DS_Store
