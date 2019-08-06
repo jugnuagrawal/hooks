@@ -5,8 +5,11 @@
     outline: 0;
     box-shadow: none;
     font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-    background: #111;
-    max-height: calc(100vh - 260px);
+    /* background: #111; */
+    /* min-height: calc(100vh - 260px);
+    max-height: calc(100vh - 260px); */
+    min-height: calc(100vh - 312px);
+    max-height: calc(100vh - 312px);
 }
 #console{
     background: #000;

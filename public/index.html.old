@@ -13,10 +13,6 @@
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/ace.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/mode-javascript.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/theme-terminal.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/ext-language_tools.js"></script>
 </head>
 
 <body style="height: 100vh;" class="w-100 d-flex flex-column" ng-controller="hookController as vm">
@@ -29,11 +25,9 @@
                     Name
                 </span>
             </span>
-            <input type="text" class="form-control" name="path" id="path" ng-model="vm.path"
-                ng-blur="vm.onBlur($event)">
+            <input type="text" class="form-control" name="path" id="path" ng-model="vm.path" ng-blur="vm.onBlur($event)">
         </div>
-        <button class="btn btn-primary fa fa-cog fa-lg py-2"
-            ng-click="vm.toggleSidenav=!vm.toggleSidenav;vm.loadAllHooks()"></button>
+        <button class="btn btn-primary fa fa-cog fa-lg py-2" ng-click="vm.toggleSidenav=!vm.toggleSidenav;vm.loadAllHooks()"></button>
     </div>
     <div class="h-100 d-flex">
         <div class="w-50 d-flex flex-column border-right position-relative">
@@ -46,39 +40,24 @@
                         <a class="flex-sm-fill text-sm-center nav-link" href="#" ng-class="{'active':vm.selectedTab == 1}" ng-click="vm.selectedTab=1">Rich Editor</a>
                     </nav> -->
                 </span>
-                <p class="p-3 m-0 font-weight-bold" id="message"
-                    ng-class="{'text-danger':vm.error,'text-success':!vm.error}">{{vm.message}}</p>
+                <p class="p-3 m-0 font-weight-bold" id="message" ng-class="{'text-danger':vm.error,'text-success':!vm.error}">{{vm.message}}</p>
                 <div class="d-flex">
                     <button type="button" class="btn btn-light mr-3 fa fa-undo-alt text-warning" id="resetBtn"
                         data-toggle="tooltip" title="Reset" ng-click="vm.init()"></button>
                     <button type="button" class="btn btn-light mr-3 fa fa-stop text-danger" id="unDeployBtn"
-                        ng-disabled="vm.disableStop" data-toggle="tooltip" title="Undeploy"
-                        ng-click="vm.deleteHook()"></button>
-                    <button type="button" class="btn btn-light fa fa-play text-success" id="deployBtn"
-                        ng-disabled="!vm.path || !vm.code" data-toggle="tooltip" title="Deploy"
-                        ng-click="vm.createHook()"></button>
+                        ng-disabled="vm.disableStop" data-toggle="tooltip" title="Undeploy" ng-click="vm.deleteHook()"></button>
+                    <button type="button" class="btn btn-light fa fa-play text-success" id="deployBtn" ng-disabled="!vm.path || !vm.code"
+                        data-toggle="tooltip" title="Deploy" ng-click="vm.createHook()"></button>
                 </div>
             </div>
             <div class="w-100 h-100 d-flex flex-column" id="codeEditor" ng-if="vm.selectedTab == 0">
                 <div class="px-3 pt-3">
-                    <small>
-                        <i><pre class="text-muted">// faker.js is available with <b>faker</b> keyword<br>// lodash is available with <b>lodash</b> keyword<br>// moment.js is available with <b>moment</b> keyword<br>// validator.js is available with <b>validator</b> keyword<br>// log4js is available with <b>logger</b> keyword</pre></i>
-                    </small>
-                    <pre
-                        class="text-white mb-1">app.post('/<span id="ctrlPath">{{vm.camelCase(vm.path)}}</span>',function(req,res){</pre>
+                    <pre class="text-white">app.post('/<span id="ctrlPath">{{vm.camelCase(vm.path)}}</span>',function(req,res){</pre>
                 </div>
-                <div id="code" ui-ace="{
-                    theme:'terminal',
-                    mode: 'javascript',
-                    require: ['ace/ext/language_tools'],
-                    advanced: {
-                        enableSnippets: true,
-                        enableBasicAutocompletion: true,
-                        enableLiveAutocompletion: true
-                    }
-                }" ng-model="vm.code"></div>
-                <div class="text-white px-3">
-                    <pre class="text-white m-0">});</pre>
+                <textarea name="code" id="code" class="w-100 h-100 border-0 pl-5 text-white m-0" ng-model="vm.code"
+                    ng-keyup="vm.onKeyUp($event)" ng-keypress="vm.keypress($event)"></textarea>
+                <div class="text-white px-3 pb-3">
+                    <pre class="text-white">});</pre>
                 </div>
             </div>
             <div class="w-100 h-100 d-flex flex-column" id="richEditor" ng-if="vm.selectedTab == 1">
@@ -87,9 +66,8 @@
             <small id="info" class="mini-footer w-100 p-2 bg-white d-flex text-muted align-items-center">
                 <div class="d-flex w-100">
                     <span style="min-width: 78px;">Hook URL&nbsp;:&nbsp;</span>
-                    <input id="copyUrl" class="hover border-0 text-muted bg-white w-100"
-                        value="https://hooks.jugnuagrawal.in/{{vm.camelCase(vm.path)}}" ng-click="vm.copyToClipboard()"
-                        readonly>
+                    <input id="copyUrl" class="hover border-0 text-muted bg-white w-100" value="https://hooks.jugnuagrawal.in/{{vm.camelCase(vm.path)}}"
+                        ng-click="vm.copyToClipboard()" readonly>
                     <span id="copied" class="text-right">(Copy to clipboard)</span>
                 </div>
             </small>
@@ -104,22 +82,19 @@
                 <div class="d-flex align-items-center">
                     <small class="text-muted mr-2">Auto refresh</small>
                     <label class="switch mb-0 mr-3" for="autoRefresh">
-                        <input id="autoRefresh" type="checkbox" ng-model="vm.autoRefresh"
-                            ng-click="vm.toggleAutoRefresh(!vm.autoRefresh)">
+                        <input id="autoRefresh" type="checkbox" ng-model="vm.autoRefresh" ng-click="vm.toggleAutoRefresh(!vm.autoRefresh)">
                         <span class="slider round"></span>
                     </label>
-                    <button class="btn btn-light fa fa-sync-alt text-dark mr-3" id="refreshConsoleBtn"
-                        data-toggle="tooltip" title="Refresh" ng-click="vm.loadLogs()"
-                        ng-disabled="vm.autoRefresh"></button>
-                    <button class="btn btn-light fa fa-trash text-danger" id="clearLogsBtn" data-toggle="tooltip"
-                        title="Clear Logs" ng-click="vm.clearLogs()"></button>
+                    <button class="btn btn-light fa fa-sync-alt text-dark mr-3" id="refreshConsoleBtn" data-toggle="tooltip"
+                        title="Refresh" ng-click="vm.loadLogs()" ng-disabled="vm.autoRefresh"></button>
+                    <button class="btn btn-light fa fa-trash text-danger" id="clearLogsBtn" data-toggle="tooltip" title="Clear Logs"
+                        ng-click="vm.clearLogs()"></button>
                 </div>
             </div>
             <pre class="w-100 h-100 d-flex flex-column text-white p-3 m-0" id="logs">
                 <span ng-repeat="log in vm.logs track by $index">{{log}}</span>
             </pre>
-            <small id="otherInfo"
-                class="mini-footer w-100 p-2 bg-white d-flex text-muted justify-content-between align-items-center">
+            <small id="otherInfo" class="mini-footer w-100 p-2 bg-white d-flex text-muted justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <span class="text-muted mr-2">With <span class="text-danger fa-lg">&hearts;</span> by</span>
                     <img src="favicon.ico" alt="Jugnu Agrawal" width="24px" data-toggle="tooltip" title="Jugnu Agrawal">
@@ -131,8 +106,7 @@
                     <span class="fab fa-font-awesome mr-2 text-info" data-toggle="tooltip" title="Font Awesome"></span>
                     <span class="fab fa-angular mr-2 text-danger" data-toggle="tooltip" title="Angular JS"></span>
                     <span class="fab fa-node-js mr-2 text-success" data-toggle="tooltip" title="Node JS"></span>
-                    <span class="fab fa-digital-ocean mr-2 text-info" data-toggle="tooltip"
-                        title="Digital Ocean"></span>
+                    <span class="fab fa-digital-ocean mr-2 text-info" data-toggle="tooltip" title="Digital Ocean"></span>
                 </div>
             </small>
         </div>
@@ -145,18 +119,15 @@
         </div>
         <div class="p-3">
             <div class="list-group">
-                <a class="list-group-item list-group-item-action" ng-repeat="hook in vm.hookList" href="#"
-                    ng-click="vm.path=hook._id;vm.loadHook();vm.toggleSidenav=false;">{{hook._id}}</a>
+                <a class="list-group-item list-group-item-action" ng-repeat="hook in vm.hookList" href="#" ng-click="vm.path=hook._id;vm.loadHook();vm.toggleSidenav=false;">{{hook._id}}</a>
             </div>
         </div>
     </div>
-    <div id="overlay" class="w-100 h-100 d-none position-fixed" ng-class="{'d-flex':vm.toggleSidenav}"
-        ng-click="vm.toggleSidenav=false"></div>
+    <div id="overlay" class="w-100 h-100 d-none position-fixed" ng-class="{'d-flex':vm.toggleSidenav}" ng-click="vm.toggleSidenav=false"></div>
     <script src="js/angular.min.js"></script>
     <script src="js/angular-sanitize.min.js"></script>
     <script src="js/angular-aria.min.js"></script>
     <script src="js/angular-animate.min.js"></script>
-    <script src="js/ui-ace.min.js"></script>
     <script src="js/app.module.js"></script>
     <script src="js/app.controller.js"></script>
     <script>
@@ -164,6 +135,7 @@
             $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
+    <!-- <script src="js/script.js"></script> -->
 </body>
 
 </html>

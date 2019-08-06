@@ -21,7 +21,7 @@
             vm.selectedTab = 0;
             vm.path = null;
             vm.loadedPath = null;
-            vm.code = 'res.json(req.body)';
+            vm.code = 'res.json(req.body);';
             vm.message = null;
             vm.logs = [];
             vm.runTime = null;
@@ -30,29 +30,13 @@
             vm.autoRefresh = false;
             vm.toggleSidenav = false;
             vm.hookList = [];
+            vm.aceModel='';
             vm.toggleAutoRefresh(false);
         };
         vm.onBlur = ($event) => {
             vm.path = vm.camelCase(vm.path);
             if (vm.path !== vm.loadedPath) {
                 vm.loadHook();
-            }
-        };
-        vm.onKeyUp = ($event) => {
-            if ($event.keyCode === 13) {
-                if (vm.code.charAt(vm.code.length - 1) == '{') {
-                    stack.push('{');
-                }
-                var temp = new Array(stack.length * 4);
-                temp.fill(' ');
-                vm.code += '\n' + temp.join('');
-            }
-        };
-        vm.keypress = ($event) => {
-            if ($event.keyCode === 125 && stack.length > 0) {
-                if (stack.pop()) {
-                    vm.code = vm.code.substr(0, vm.code.length - 4);
-                }
             }
         };
         vm.camelCase = (string) => {

@@ -4,6 +4,7 @@
     angular.module('hooks', [
         'ngSanitize',
         'ngAria',
-        'ngAnimate'
+        'ngAnimate',
+        'ui.ace'
     ]);
 })();

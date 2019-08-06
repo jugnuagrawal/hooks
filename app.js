@@ -159,10 +159,6 @@ app.delete('/logs/:path', (req, res) => {
     res.status(200).json({ message: 'Logs cleared' });
 });
 
-// app.get('/editor', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public', 'editor.html'));
-// });
-
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

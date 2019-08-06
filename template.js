@@ -4,10 +4,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const log4js = require('log4js');
 const faker = require('faker');
-const _ = require('lodash');
+const lodash = require('lodash');
+const moment = require('moment');
+const validator = require('validator');
 
 const PORT = ${data.port};
-const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
+const LOG_LEVEL = 'debug';
 
 const logger = log4js.getLogger('${data.path}');
 const app = express();
@@ -55,7 +57,11 @@ app.get('/${data.path}/console', (req, res) => {
 });
 
 app.post('/${data.path}', (req, res) => {
-    ${data.code}
+    try {
+        ${data.code}
+    } catch(e) {
+        res.status(500).json({ message: e.message });
+    }
 });
 
 app.listen(PORT, (err) => {
