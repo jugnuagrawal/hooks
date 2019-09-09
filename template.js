@@ -1,5 +1,6 @@
 module.exports.getContent = (data) => {
-    return `const path = require('path');
+    return `const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const log4js = require('log4js');
@@ -16,7 +17,7 @@ const app = express();
 
 
 log4js.configure({
-    appenders: { 'out': { type: 'stdout' }, server: { type: 'file', filename: 'logs/${data.path}.log', maxLogSize: 52428800 } },
+    appenders: { 'out': { type: 'stdout' }, server: { type: 'file', filename: path.join(__dirname, 'logs/${data.path}.log'), maxLogSize: 52428800 } },
     categories: { default: { appenders: ['out', 'server'], level: LOG_LEVEL } }
 });
 
@@ -25,7 +26,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
-    logger.info(req.method, req.headers['x-forwarded-for'] || req.connection.remoteAddress, req.path, req.params, req.query, req.body);
+    if (req.method === 'POST') {
+        logger.info(req.method, req.headers['x-forwarded-for'] || req.connection.remoteAddress, req.path, req.params, req.query, req.body);
+    }
     next();
 });
 
@@ -37,17 +40,21 @@ app.get('/${data.path}/console', (req, res) => {
             if (data) {
                 var arr = data.split('\\n');
                 if (req.query.tail) {
-                    res.json({ logs: arr.splice(arr.length - req.query.tail, arr.length) });
+                    arr = arr.splice(arr.length - req.query.tail, arr.length);
                 } else if (req.query.head) {
-                    res.json({ logs: arr.splice(0, req.query.head) });
-                } else {
+                    arr = arr.splice(0, req.query.head);
+                }
+                if (req.headers['content-type'] === 'application/json') {
                     res.json({ logs: arr });
+                } else {
+                    res.end(arr.join('\\n'));
                 }
             } else {
                 res.json({ message: 'No logs!' });
             }
         });
     } catch (e) {
+        logger.error(e);
         if (req.headers['content-type'] === 'application/json') {
             res.json({ message: 'No logs!' });
         } else {
@@ -60,6 +67,7 @@ app.post('/${data.path}', (req, res) => {
     try {
         ${data.code}
     } catch(e) {
+        logger.error(e);
         res.status(500).json({ message: e.message });
     }
 });

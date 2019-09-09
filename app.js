@@ -58,7 +58,7 @@ app.use((req, res, next) => {
     const segments = req.path.split('/').filter(e => e);
     const mappedPort = routeMap[segments[0]];
     if (mappedPort) {
-        const proxyUrl = 'http://localhost:' + mappedPort + '/' + segments.join('/');
+        const proxyUrl = 'http://localhost:' + mappedPort + req.originalUrl;
         logger.info('Proxy Pass', proxyUrl);
         req.pipe(request(proxyUrl)).pipe(res);
     } else {
