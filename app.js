@@ -108,13 +108,7 @@ app.post('/deploy', (req, res) => {
                 port: portData.port,
                 timestamp: new Date()
             };
-            let query;
-            if (data) {
-                query = model.findOneAndUpdate({ _id: req.body.path }, payload).exec();
-            } else {
-                query = model.create(payload);
-            }
-            query.then(doc => {
+            model.findOneAndUpdate({ _id: req.body.path }, payload, { upsert: true }).then(doc => {
                 payload.path = payload._id;
                 createHook(payload);
                 routeMap[payload.path] = payload.port;

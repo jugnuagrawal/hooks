@@ -2,7 +2,6 @@ module.exports.getContent = (data) => {
     return `const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const bodyParser = require('body-parser');
 const log4js = require('log4js');
 const faker = require('faker');
 const lodash = require('lodash');
@@ -22,8 +21,8 @@ log4js.configure({
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
     if (req.method === 'POST') {
