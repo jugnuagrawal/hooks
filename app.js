@@ -33,7 +33,7 @@ const schema = new mongoose.Schema({
 });
 
 const model = mongoose.model('controller', schema);
-const mongo_url = process.env.MONGO_URL || 'mongodb://localhost:27017/hooks';
+const mongo_url = process.env.MONGODB_URL || 'mongodb://localhost:27017/hooks';
 
 log4js.configure({
     appenders: {
@@ -66,8 +66,8 @@ app.use((req, res, next) => {
     }
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(express.static('node_modules'));
 

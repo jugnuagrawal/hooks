@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="author" content="Jugnu Agrawal">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Hooks</title>
@@ -13,10 +14,7 @@
     <script src="js/jquery-3.3.1.min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/ace.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/mode-javascript.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/theme-terminal.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/ext-language_tools.js"></script>
+    <script src="monaco-editor/min/vs/loader.js"></script>
 </head>
 
 <body style="height: 100vh;" class="w-100 d-flex flex-column" ng-controller="hookController as vm">
@@ -41,10 +39,6 @@
                 <span class="font-weight-bold d-flex align-items-center">
                     <span class="fa fa-code text-muted mr-2"></span>
                     <span>Editor</span>
-                    <!-- <nav class="nav nav-tabs flex-column flex-sm-row">
-                        <a class="flex-sm-fill text-sm-center nav-link" href="#" ng-class="{'active':vm.selectedTab == 0}" ng-click="vm.selectedTab=0">Code Editor</a>
-                        <a class="flex-sm-fill text-sm-center nav-link" href="#" ng-class="{'active':vm.selectedTab == 1}" ng-click="vm.selectedTab=1">Rich Editor</a>
-                    </nav> -->
                 </span>
                 <p class="p-3 m-0 font-weight-bold" id="message"
                     ng-class="{'text-danger':vm.error,'text-success':!vm.error}">{{vm.message}}</p>
@@ -62,23 +56,17 @@
             <div class="w-100 h-100 d-flex flex-column" id="codeEditor" ng-if="vm.selectedTab == 0">
                 <div class="px-3 pt-3">
                     <small>
-                        <i><pre class="text-muted">// faker.js is available with <b>faker</b> keyword<br>// lodash is available with <b>lodash</b> keyword<br>// moment.js is available with <b>moment</b> keyword<br>// validator.js is available with <b>validator</b> keyword<br>// log4js is available with <b>logger</b> keyword</pre></i>
+                        <i>
+                            <pre
+                                class="text-muted">// faker.js is available with <b>faker</b> keyword<br>// lodash is available with <b>lodash</b> keyword<br>// moment.js is available with <b>moment</b> keyword<br>// validator.js is available with <b>validator</b> keyword<br>// log4js is available with <b>logger</b> keyword</pre>
+                        </i>
                     </small>
                     <pre
-                        class="text-white mb-1">app.post('/<span id="ctrlPath">{{vm.camelCase(vm.path)}}</span>',function(req,res){</pre>
+                        class="text-white mb-1">function&nbsp;process(req,&nbsp;res)&nbsp;{</pre>
                 </div>
-                <div id="code" ui-ace="{
-                    theme:'terminal',
-                    mode: 'javascript',
-                    require: ['ace/ext/language_tools'],
-                    advanced: {
-                        enableSnippets: true,
-                        enableBasicAutocompletion: true,
-                        enableLiveAutocompletion: true
-                    }
-                }" ng-model="vm.code"></div>
+                <div id="code" ng-model="vm.code"></div>
                 <div class="text-white px-3">
-                    <pre class="text-white m-0">});</pre>
+                    <pre class="text-white m-0">}</pre>
                 </div>
             </div>
             <div class="w-100 h-100 d-flex flex-column" id="richEditor" ng-if="vm.selectedTab == 1">
@@ -131,8 +119,8 @@
                     <span class="fab fa-font-awesome mr-2 text-info" data-toggle="tooltip" title="Font Awesome"></span>
                     <span class="fab fa-angular mr-2 text-danger" data-toggle="tooltip" title="Angular JS"></span>
                     <span class="fab fa-node-js mr-2 text-success" data-toggle="tooltip" title="Node JS"></span>
-                    <span class="fab fa-digital-ocean mr-2 text-info" data-toggle="tooltip"
-                        title="Digital Ocean"></span>
+                    <span class="fab fa-aws mr-2 text-secondary" data-toggle="tooltip"
+                        title="AWS"></span>
                 </div>
             </small>
         </div>
@@ -156,12 +144,23 @@
     <script src="js/angular-sanitize.min.js"></script>
     <script src="js/angular-aria.min.js"></script>
     <script src="js/angular-animate.min.js"></script>
-    <script src="js/ui-ace.min.js"></script>
     <script src="js/app.module.js"></script>
     <script src="js/app.controller.js"></script>
     <script>
         $(document).ready(function () {
             $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    <script>
+        require.config({ paths: { vs: 'monaco-editor/min/vs' } });
+
+        require(['vs/editor/editor.main'], function () {
+            var editor = monaco.editor.create(document.getElementById('code'), {
+                value: ['function x() {', '\tconsole.log("Hello world!");', '}'].join('\n'),
+                language: 'javascript',
+                theme: 'vs-dark',
+                automaticLayout: true
+            });
         });
     </script>
 </body>
